@@ -1,6 +1,8 @@
-# Point2Skeleton: Learning Skeletal Representations from Point Clouds
+# Point2Skeleton
 
 We introduce Point2Skeleton, an unsupervised method to learn skeletal representations from point clouds. 
+
+Welcome to check out the paper [Point2Skeleton: Learning Skeletal Representations from Point Clouds](https://arxiv.org/abs/2012.00230)
 
 The full code is coming soon!
 
@@ -9,6 +11,8 @@ The full code is coming soon!
 <a>
     <img src="doc/skeletal_mesh.jpg" width="70% height="70%"/>
 </a>
+                                                            
+We introduce a generalized skeletal representation, called skeletal mesh. Several good properties of the skeletal mesh make it a useful representation for shape analysis:
 
 - **Recoverability** The skeletal mesh can be considered as a complete shape descriptor, which means it can reconstruct the shape of the original domain. 
 
