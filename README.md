@@ -57,8 +57,17 @@ python test.py --pc_list_file ../data/data-split/all-train.txt --data_root ../da
 ### Download 
 
 * Train/test data [data.zip](https://drive.google.com/file/d/1sNU1av82qrEMq0mTQVl-e_4eo0mkKXsZ/view?usp=sharing)
-* Pre-trained model [pretrained.zip](https://drive.google.com/file/d/1pPboSALmvZJTEjFLgmKBXm32RNVVR1zt/view?usp=sharing)
+* Pre-trained model [weights.zip](https://drive.google.com/file/d/1pPboSALmvZJTEjFLgmKBXm32RNVVR1zt/view?usp=sharing)
 * Unzip the downloaded files to replace the `data` and `weights` folders; then you can run the code by simply calling `train.py` and `test.py`.
+
+## Acknowledgement
+We would like to acknowledge the following open sources:
+
+[Unsupervised Learning of Intrinsic Structural Representation Points](https://github.com/NolenChen/3DStructurePoints)
+
+[Pointnet++ PyTorch](https://github.com/erikwijmans/Pointnet2_PyTorch)
+
+[Graph Convolution](https://github.com/linhaojia13/GCN_pointcloud)
 
 
 ## Contact

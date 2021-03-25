@@ -1,0 +1,4 @@
+data/*.ply
+data/*.txt
+weights/*.pth
+*.pyc
