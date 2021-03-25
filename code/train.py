@@ -15,12 +15,12 @@ import config as conf
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Point2Skeleton')
-    parser.add_argument('--pc_list_file', type=str, default='../training-data/train-test-split/all-train.txt',
+    parser.add_argument('--pc_list_file', type=str, default='../data/data-split/all-train.txt',
                         help='file of the names of the point clouds')
-    parser.add_argument('--data_root', type=str, default='../training-data/train-test-sample-2000/',
+    parser.add_argument('--data_root', type=str, default='../data/pointclouds/',
                         help='root directory of all the data')
-    parser.add_argument('--point_num', type=str, default=2000, help='input point number')
-    parser.add_argument('--skelpoint_num', type=str, default=100, help='output skeletal point number')
+    parser.add_argument('--point_num', type=int, default=2000, help='input point number')
+    parser.add_argument('--skelpoint_num', type=int, default=100, help='output skeletal point number')
 
     parser.add_argument('--gpu', type=str, default='0', help='which gpu to use')
     parser.add_argument('--save_net_path', type=str, default='../training-weights/',
@@ -31,7 +31,7 @@ def parse_args():
                         help='directory to save the training log (tensorboard)')
     parser.add_argument('--save_result_path', type=str, default='../log/',
                         help='directory to save the temporary results during training')
-    parser.add_argument('--save_result_iter', type=int, default=20,
+    parser.add_argument('--save_result_iter', type=int, default=1000,
                         help='frequency to save the intermediate results (number of iteration)')
     args = parser.parse_args()
 
@@ -45,7 +45,7 @@ def halve_learning_rate(optimizer, check_point, current_epoch, lr_init):
             param_group['lr'] = lr
 
 
-def output_results(log_path, batch_id, epoch, input_xyz, skel_xyz, skel_r, A_init=None, A_pred=None, A_final=None):
+def output_results(log_path, batch_id, epoch, input_xyz, skel_xyz, skel_r, A_init=None, A_final=None):
     batch_size = skel_xyz.size()[0]
     batch_id = batch_id.numpy()
     input_xyz_save = input_xyz.detach().cpu().numpy()
@@ -54,8 +54,6 @@ def output_results(log_path, batch_id, epoch, input_xyz, skel_xyz, skel_r, A_ini
 
     if A_init is not None:
         A_init_save = A_init.detach().cpu().numpy()
-    if A_pred is not None:
-        A_pred_save = A_pred.detach().cpu().numpy()
     if A_final is not None:
         A_final_save = A_final.detach().cpu().numpy()
 
@@ -64,17 +62,16 @@ def output_results(log_path, batch_id, epoch, input_xyz, skel_xyz, skel_r, A_ini
         save_name_input = log_path + str(batch_id[i]) + "_input.off"
         save_name_sphere = log_path + str(batch_id[i]) + "_sphere_" + str(epoch) + ".obj"
         save_name_center = log_path + str(batch_id[i]) + "_center_" + str(epoch) + ".off"
+        
         save_name_A_init = log_path + str(batch_id[i]) + "_graph_init_" + str(epoch) + ".obj"
-        save_name_A_pred = log_path + str(batch_id[i]) + "_graph_pred_" + str(epoch) + ".obj"
         save_name_A_final = log_path + str(batch_id[i]) + "_graph_final_" + str(epoch) + ".obj"
+        
         rw.save_off_points(input_xyz_save[i], save_name_input)
         rw.save_spheres(skel_xyz_save[i], skel_r_save[i], save_name_sphere)
         rw.save_off_points(skel_xyz_save[i], save_name_center)
 
         if A_init is not None:
             rw.save_graph(skel_xyz_save[i], A_init_save[i], save_name_A_init)
-        if A_pred is not None:
-            rw.save_graph(skel_xyz_save[i], A_pred_save[i], save_name_A_pred)
         if A_final is not None:
             rw.save_graph(skel_xyz_save[i], A_final_save[i], save_name_A_final)
 
@@ -116,24 +113,29 @@ if __name__ == "__main__":
         print("No CUDA detected.")
         sys.exit(0)
 
-    model_skel.load_state_dict(torch.load('../final-weights/weights-skel.pth'))
+    # model_skel.load_state_dict(torch.load('../final-weights/weights-skel.pth'))
 
     #load data and train
-    pc_list = rw.load_data_id(pc_list_file)[1200:1400]
+    pc_list = rw.load_data_id(pc_list_file)[0:100]
     train_data = PCDataset(pc_list, data_root, point_num)
     train_loader = DataLoader(dataset=train_data, batch_size=conf.BATCH_SIZE, shuffle=True, drop_last=True)
-    iter = 0
-    for epoch in range(1000):
+    
+    iter = -1
+    total_epoch = conf.PRE_TRAIN_EPOCH + conf.SKELPOINT_TRAIN_EPOCH + conf.GAE_TRAIN_EPOCH
+    
+    for epoch in range(total_epoch):
         for k, batch_data in enumerate(train_loader):
+            iter += 1
             print('epoch, iter:', epoch, iter)
+            
             batch_id, batch_pc = batch_data
             batch_id = batch_id
             batch_pc = batch_pc.cuda().float()
-
+            
             ######################################
             # pre-train skeletal point network
             ######################################
-            if epoch < conf.START_SKEL:
+            if epoch < conf.PRE_TRAIN_EPOCH:
                 print('######### pre-training #########')
                 skel_xyz, skel_r, shape_features = model_skel(batch_pc, compute_graph=False)
                 loss_pre = model_skel.compute_loss_pre(batch_pc, skel_xyz)
@@ -146,15 +148,15 @@ if __name__ == "__main__":
                 if iter % save_result_iter == 0:
                     output_results(save_result_path, batch_id, epoch, batch_pc, skel_xyz, skel_r)
                 if iter % save_net_iter == 0:
-                    torch.save(model_skel.state_dict(), save_net_path + 'para-skel-pre.pth')
+                    torch.save(model_skel.state_dict(), save_net_path + 'weights-skelpoint-pre.pth')
 
             ######################################
             # train skeletal point network with geometric losses
             ######################################
-            elif epoch < conf.START_GAE:
+            elif epoch < conf.PRE_TRAIN_EPOCH + conf.SKELPOINT_TRAIN_EPOCH:
                 print('######### skeletal point training #########')
                 skel_xyz, skel_r, shape_features = model_skel(batch_pc, compute_graph=False)
-                loss_skel = model_skel.compute_loss(batch_pc, skel_xyz, skel_r, None, 0.3, 0.4, 0.0, lap_reg=False)
+                loss_skel = model_skel.compute_loss(batch_pc, skel_xyz, skel_r, None, 0.3, 0.4)
 
                 optimizer_skel.zero_grad()
                 loss_skel.backward()
@@ -164,16 +166,16 @@ if __name__ == "__main__":
                 if iter % save_result_iter == 0:
                     output_results(save_result_path, batch_id, epoch, batch_pc, skel_xyz, skel_r)
                 if iter % save_net_iter == 0:
-                    torch.save(model_skel.state_dict(), save_net_path + 'para-skel.pth')
+                    torch.save(model_skel.state_dict(), save_net_path + 'weights-skelpoint.pth')
 
             ######################################
             # train GAE
             ######################################
-            elif epoch < conf.START_JOINT:
+            else:
                 print('######### GAE training #########')
 
                 # frezee the skeletal point network
-                if epoch == conf.START_GAE:
+                if epoch == conf.PRE_TRAIN_EPOCH + conf.SKELPOINT_TRAIN_EPOCH:
                     model_skel.train(mode=False)
 
                 # get skeletal points and the node features
@@ -190,22 +192,21 @@ if __name__ == "__main__":
                 optimizer_gae.step()
 
                 A_final = model_gae.recover_A(A_pred, valid_mask)
+
                 if iter % save_result_iter == 0:
-                    output_results(save_result_path, batch_id, epoch, batch_pc, skel_xyz, skel_r, A_init,
-                                   torch.gt(A_pred, 0.5), A_final)
+                    output_results(save_result_path, batch_id, epoch, batch_pc, skel_xyz, skel_r, A_init, A_final)
                 if iter % save_net_iter == 0:
-                    torch.save(model_gae.state_dict(), save_net_path + 'para-gae.pth')
-
-                print('A init:', torch.sum(A_init).item() / conf.BATCH_SIZE / 2.0)
-                print('A known:', torch.sum(known_mask).item() / conf.BATCH_SIZE / 2.0)
-                print('A pred:', torch.sum(torch.gt(A_pred, 0.5)).item() / conf.BATCH_SIZE / 2.0)
-
+                    torch.save(model_gae.state_dict(), save_net_path + 'weights-gae.pth')
+                tb_writer.add_scalar('GAE/loss_MBCE', loss_MBCE.item(), iter)
+            
+            
+            '''
             ######################################
             # Train two networks jointly
             ######################################
             else:
                 print('######### joint training #########')
-                if epoch == conf.START_JOINT:
+                if epoch == conf.PRE_TRAIN_EPOCH + conf.SKELPOINT_TRAIN_EPOCH + conf.GAE_TRAIN_EPOCH:
                     model_skel.train(mode=True)
 
                 # get skeletal points and node features
@@ -232,13 +233,13 @@ if __name__ == "__main__":
                 optimizer_skel.step()
 
                 if iter % save_result_iter == 0:
-                    output_results(save_result_path, batch_id, epoch, batch_pc, skel_xyz, skel_r, A_init, A_pred,
-                                   A_final)
+                    output_results(save_result_path, batch_id, epoch, batch_pc, skel_xyz, skel_r, A_init, A_final)
                 if iter % save_net_iter == 0:
-                    torch.save(model_gae.state_dict(), save_net_path + 'para-mesh-joint' + str(epoch) + '.pth')
-                    torch.save(model_skel.state_dict(), save_net_path + 'para-skel-joint' + str(epoch) + '.pth')
+                    torch.save(model_gae.state_dict(), save_net_path + 'weights-skelpoint-joint' + str(epoch) + '.pth')
+                    torch.save(model_skel.state_dict(), save_net_path + 'weights-gae-joint' + str(epoch) + '.pth')
 
                 tb_writer.add_scalar('GAE/loss_MBCE', loss_MBCE.item(), iter)
                 tb_writer.add_scalar('SkeletalPoint/loss_skel', loss_skel.item(), iter)
+            '''
+            
 
-            iter += 1
