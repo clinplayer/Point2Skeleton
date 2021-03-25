@@ -113,10 +113,8 @@ if __name__ == "__main__":
         print("No CUDA detected.")
         sys.exit(0)
 
-    # model_skel.load_state_dict(torch.load('../final-weights/weights-skel.pth'))
-
     #load data and train
-    pc_list = rw.load_data_id(pc_list_file)[0:100]
+    pc_list = rw.load_data_id(pc_list_file)
     train_data = PCDataset(pc_list, data_root, point_num)
     train_loader = DataLoader(dataset=train_data, batch_size=conf.BATCH_SIZE, shuffle=True, drop_last=True)
     

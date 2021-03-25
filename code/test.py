@@ -97,7 +97,7 @@ if __name__ == "__main__":
     model_gae.load_state_dict(torch.load(load_gae_path))
 
     #load data and test network
-    pc_list = rw.load_data_id(pc_list_file)[100:200]
+    pc_list = rw.load_data_id(pc_list_file)
     test_data = PCDataset(pc_list, data_root, point_num)
     data_loader = DataLoader(dataset=test_data, batch_size=1, shuffle=False, drop_last=False)
     for iter, batch_data in enumerate(data_loader):
