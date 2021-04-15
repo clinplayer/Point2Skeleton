@@ -48,7 +48,7 @@ python train.py --pc_list_file ../data/data-split/all-train.txt --data_root ../d
 * Example command with required parameters:
 ```
 cd code
-python test.py --pc_list_file ../data/data-split/all-train.txt --data_root ../data/pointclouds/ --point_num 2000 --skelpoint_num 100 --gpu 0 --load_skelnet_path ../weights/weights-skelpoint.pth --load_gae_path ../weights/weights-gae.pth --save_result_path ../results/
+python test.py --pc_list_file ../data/data-split/all-test.txt --data_root ../data/pointclouds/ --point_num 2000 --skelpoint_num 100 --gpu 0 --load_skelnet_path ../weights/weights-skelpoint.pth --load_gae_path ../weights/weights-gae.pth --save_result_path ../results/
 ``` 
 * Can also simply call `python test.py` once the data folder `data/` and network weight folder `weights/` are prepared.
 * See `python test.py --help` for all the testing options. 
