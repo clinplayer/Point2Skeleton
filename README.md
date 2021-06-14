@@ -72,11 +72,13 @@ We would like to acknowledge the following open sources:
 If you find our work useful in your research, please consider citing:
 
 ```
-@article{lin2020point2skeleton,
-  title={Point2Skeleton: Learning Skeletal Representations from Point Clouds},
-  author={Lin, Cheng and Li, Changjian and Liu, Yuan and Chen, Nenglun and Choi, Yi-King and Wang, Wenping},
-  journal={arXiv preprint arXiv:2012.00230},
-  year={2020}
+@InProceedings{Lin_2021_CVPR,
+    author    = {Lin, Cheng and Li, Changjian and Liu, Yuan and Chen, Nenglun and Choi, Yi-King and Wang, Wenping},
+    title     = {Point2Skeleton: Learning Skeletal Representations from Point Clouds},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2021},
+    pages     = {4277-4286}
 }
 ```
 
