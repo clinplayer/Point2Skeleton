@@ -60,7 +60,7 @@ python test.py --pc_list_file ../data/data-split/all-test.txt --data_root ../dat
 * Dense point cloud [data_dense.zip](https://drive.google.com/file/d/1VBrkf1Gx9kVlyVuSHV5srXGLmqaT5-8Y/view?usp=sharing) and simplified MAT [MAT.zip](https://drive.google.com/file/d/1To8_ot9yxmY5AMjHKc9bqG03I84ydwXy/view?usp=sharing) for evaluation.
 
 ## Acknowledgement
-We would like to acknowledge the following open sources:
+We would like to acknowledge the following projects:
 
 [Unsupervised Learning of Intrinsic Structural Representation Points](https://github.com/NolenChen/3DStructurePoints)
 
