@@ -19,7 +19,7 @@ def parse_args():
                         help='file of the names of the point clouds')
     parser.add_argument('--data_root', type=str, default='../data/pointclouds/',
                         help='root directory of all the data')
-    parser.add_argument('--point_num', type=str, default=2000, help='input point number')
+    parser.add_argument('--point_num', type=int, default=2000, help='input point number')
     parser.add_argument('--skelpoint_num', type=int, default=100, help='output skeletal point number')
 
     parser.add_argument('--gpu', type=str, default='0', help='which gpu to use')
