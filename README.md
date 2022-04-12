@@ -31,14 +31,15 @@ You need to install [PyTorch](https://pytorch.org/), [NumPy](https://numpy.org/)
 
 To setup PointNet++, please use:
 ```
-cd code/pointnet2
+pip install -r requirements.txt
+cd src/pointnet2
 python setup.py build_ext --inplace
 ```
 
 ### Training
 * Example command with required parameters:
 ```
-cd code
+cd src
 python train.py --pc_list_file ../data/data-split/all-train.txt --data_root ../data/pointclouds/ --point_num 2000 --skelpoint_num 100 --gpu 0
 ``` 
 * Can simply call `python train.py` once the data folder `data/` is prepared.
@@ -47,7 +48,7 @@ python train.py --pc_list_file ../data/data-split/all-train.txt --data_root ../d
 ### Testing
 * Example command with required parameters:
 ```
-cd code
+cd src
 python test.py --pc_list_file ../data/data-split/all-test.txt --data_root ../data/pointclouds/ --point_num 2000 --skelpoint_num 100 --gpu 0 --load_skelnet_path ../weights/weights-skelpoint.pth --load_gae_path ../weights/weights-gae.pth --save_result_path ../results/
 ``` 
 * Can also simply call `python test.py` once the data folder `data/` and network weight folder `weights/` are prepared.
@@ -83,4 +84,4 @@ If you find our work useful in your research, please consider citing:
 ```
 
 ## Contact
-If you have any questions, please email [Cheng Lin](https://clinplayer.github.io/) at chlin@hku.hk.
+If you have any questions, please email [Cheng Lin](https://clinplayer.github.io/) at chlin@connect.hku.hk.
