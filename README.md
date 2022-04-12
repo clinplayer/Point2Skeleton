@@ -43,7 +43,7 @@ cd src
 python train.py --pc_list_file ../data/data-split/all-train.txt --data_root ../data/pointclouds/ --point_num 2000 --skelpoint_num 100 --gpu 0
 ``` 
 * Can simply call `python train.py` once the data folder `data/` is prepared.
-* See `python train.py --help` for all the training options. Can change the setting by modifying the parameters in `code/config.py`
+* See `python train.py --help` for all the training options. Can change the setting by modifying the parameters in `src/config.py`
 
 ### Testing
 * Example command with required parameters:
